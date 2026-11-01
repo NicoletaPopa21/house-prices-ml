@@ -43,3 +43,31 @@ def prepare_data(data):
 
     # 7. Returnăm datele și preprocesorul
     return X_train, X_valid, y_train, y_valid, preprocessor
+
+
+def prepare_full_data(data):
+
+    # 1. Separăm caracteristicile de variabila target
+    X = data.drop(columns=["SalePrice", "Id"])
+    y = data["SalePrice"]
+
+    # 2. Identificăm coloanele numerice și categorice
+    numerical_cols = X.select_dtypes(include=["number"]).columns
+    categorical_cols = X.select_dtypes(include=["object"]).columns
+
+    # 3. Preprocesarea coloanelor numerice
+    numerical_transformer = SimpleImputer(strategy="median")
+
+    # 4. Preprocesarea coloanelor categorice
+    categorical_transformer = Pipeline(steps=[
+        ("imputer", SimpleImputer(strategy="constant", fill_value="Missing")),
+        ("onehot", OneHotEncoder(handle_unknown="ignore"))
+    ])
+
+    # 5. Combinăm transformările
+    preprocessor = ColumnTransformer(transformers=[
+        ("num", numerical_transformer, numerical_cols),
+        ("cat", categorical_transformer, categorical_cols)
+    ])
+
+    return X, y, preprocessor
