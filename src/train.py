@@ -1,7 +1,7 @@
 import pandas as pd
 
 from src.preprocessing import prepare_data
-from src.models import build_linear_regression, build_decision_tree, build_random_forest
+from src.models import build_linear_regression, build_decision_tree, build_random_forest, tune_random_forest
 from src.evaluation import evaluate_model
 
 data = pd.read_csv("data/train.csv")
@@ -51,3 +51,24 @@ comparison = pd.DataFrame({
 })
 print("\nModel Comparison:")
 print(comparison)
+
+# ============== RANDOM FOREST OPTIMIZATION ==============
+
+search = tune_random_forest(preprocessor, x_train, y_train)
+
+print("\nBest parameters:")
+print(search.best_params_)
+
+print("\nBest cross-validation RMSE:")
+print(-search.best_score_)
+
+# ============== OPTIMIZED RANDOM FOREST EVALUATION ==============
+
+best_model = search.best_estimator_
+
+optimized_predictions = best_model.predict(x_valid)
+
+optimized_results = evaluate_model(y_valid, optimized_predictions)
+
+print("\nOptimized Random Forest:")
+print(optimized_results)
